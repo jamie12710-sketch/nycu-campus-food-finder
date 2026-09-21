@@ -4,58 +4,156 @@ import pandas as pd
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_FILE = os.path.join(BASE_DIR, 'restaurant_data.csv')
-REQUIRED = ['餐廳區域','店家','餐點','價格','營業時間']
+REQUIRED = ["餐廳區域", "店家", "餐點", "價格", "營業時間"]
+
+
+def find_csv():
+    # 優先使用標準檔名；若使用者下載成 restaurant_data(3).csv 也能自動找到。
+    candidates = [
+        os.path.join(BASE_DIR, "restaurant_data.csv"),
+        os.path.join(BASE_DIR, "restaurant_data(3).csv"),
+        os.path.join(BASE_DIR, "restaurant_data(2).csv"),
+        os.path.join(BASE_DIR, "restaurant_data(1).csv"),
+    ]
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    raise FileNotFoundError("找不到 restaurant_data.csv（或 restaurant_data(3).csv）")
+
+
+def clean_text(series):
+    return (series.fillna("").astype(str)
+            .str.replace("\ufeff", "", regex=False)
+            .str.replace("\xa0", " ", regex=False)
+            .str.strip())
+
 
 def load_data():
+    csv_file = find_csv()
     try:
-        df = pd.read_csv(CSV_FILE, encoding='utf-8-sig')
+        data = pd.read_csv(csv_file, encoding="utf-8-sig")
     except UnicodeDecodeError:
-        df = pd.read_csv(CSV_FILE, encoding='utf-8')
-    df.columns = df.columns.astype(str).str.strip()
-    missing = [c for c in REQUIRED if c not in df.columns]
+        data = pd.read_csv(csv_file, encoding="utf-8")
+
+    data.columns = (data.columns.astype(str)
+                    .str.replace("\ufeff", "", regex=False)
+                    .str.strip())
+
+    # 舊版 CSV 可能有 index 欄，新版沒有；不影響餐點資料。
+    missing = [c for c in REQUIRED if c not in data.columns]
     if missing:
-        raise ValueError('CSV 缺少欄位：' + ', '.join(missing))
-    df['價格'] = pd.to_numeric(df['價格'].astype(str).str.replace('$','',regex=False).str.replace(',','',regex=False).str.strip(), errors='coerce')
-    df = df.dropna(subset=['價格']).copy()
-    df['價格'] = df['價格'].astype(int)
-    for c in ['餐廳區域','店家','餐點','營業時間']:
-        df[c] = df[c].fillna('').astype(str).str.strip()
-    return df
+        raise ValueError("CSV 缺少欄位：" + ", ".join(missing))
+
+    for c in ["餐廳區域", "店家", "餐點", "營業時間"]:
+        data[c] = clean_text(data[c])
+
+    data["價格"] = (data["價格"].astype(str)
+                     .str.replace("$", "", regex=False)
+                     .str.replace(",", "", regex=False)
+                     .str.strip())
+    data["價格"] = pd.to_numeric(data["價格"], errors="coerce")
+    data = data.dropna(subset=["價格"]).copy()
+    data["價格"] = data["價格"].astype(int)
+
+    # 餐點為空的資料不應顯示成空白餐點列。
+    data = data[data["餐點"] != ""].copy()
+    return data.reset_index(drop=True)
+
 
 df = load_data()
 
-@app.route('/')
+
+def stats_dict(data):
+    if data.empty:
+        return {"restaurants": 0, "shops": 0, "items": 0, "avg": 0, "min": 0, "max": 0}
+    return {
+        "restaurants": int(data["餐廳區域"].nunique()),
+        "shops": int(data["店家"].nunique()),
+        "items": int(len(data)),
+        "avg": round(float(data["價格"].mean()), 2),
+        "min": int(data["價格"].min()),
+        "max": int(data["價格"].max()),
+    }
+
+
+def to_records(data):
+    # 明確指定欄位，避免 CSV 額外 index 欄造成前端顯示錯位。
+    return [{
+        "餐廳區域": str(row["餐廳區域"]),
+        "店家": str(row["店家"]),
+        "餐點": str(row["餐點"]),
+        "價格": int(row["價格"]),
+        "營業時間": str(row["營業時間"]),
+    } for _, row in data.iterrows()]
+
+
+@app.route("/")
 def index():
-    stats = dict(restaurants=int(df['餐廳區域'].nunique()), shops=int(df['店家'].nunique()), items=len(df), avg=round(float(df['價格'].mean()),2), min=int(df['價格'].min()), max=int(df['價格'].max()))
-    return render_template('index.html', restaurants=sorted(df['餐廳區域'].unique()), shops=sorted(df['店家'].unique()), stats=stats)
+    return render_template(
+        "index.html",
+        restaurants=sorted(df["餐廳區域"].unique().tolist()),
+        shops=sorted(df["店家"].unique().tolist()),
+        stats=stats_dict(df),
+    )
 
-@app.route('/api/shops')
+
+@app.route("/api/shops")
 def shops():
-    r = request.args.get('restaurant','').strip()
-    x = df if not r or r == '全部' else df[df['餐廳區域'] == r]
-    return jsonify(sorted(x['店家'].unique().tolist()))
+    restaurant = request.args.get("restaurant", "").strip()
+    data = df if not restaurant or restaurant == "全部" else df[df["餐廳區域"] == restaurant]
+    return jsonify(sorted(data["店家"].drop_duplicates().tolist()))
 
-@app.route('/api/search')
+
+@app.route("/api/search")
 def search():
-    x = df.copy()
-    r = request.args.get('restaurant','').strip(); s = request.args.get('shop','').strip()
-    k = request.args.get('keyword','').strip(); b = request.args.get('budget','').strip(); order = request.args.get('sort','default')
-    if r and r != '全部': x = x[x['餐廳區域'] == r]
-    if s and s != '全部': x = x[x['店家'] == s]
-    if k:
-        mask = x['餐點'].str.contains(k, case=False, na=False, regex=False) | x['店家'].str.contains(k, case=False, na=False, regex=False) | x['餐廳區域'].str.contains(k, case=False, na=False, regex=False)
-        x = x[mask]
-    if b:
-        try:
-            n = int(b)
-            if n < 0: raise ValueError
-            x = x[x['價格'] <= n]
-        except ValueError:
-            return jsonify(error='最高預算請輸入 0 以上的整數。'), 400
-    if order == 'price_asc': x = x.sort_values('價格')
-    elif order == 'price_desc': x = x.sort_values('價格', ascending=False)
-    return jsonify(count=len(x), data=[{'餐廳區域':r['餐廳區域'],'店家':r['店家'],'餐點':r['餐點'],'價格':int(r['價格']),'營業時間':r['營業時間']} for _,r in x.iterrows()])
+    data = df.copy()
+    restaurant = request.args.get("restaurant", "").strip()
+    shop = request.args.get("shop", "").strip()
+    keyword = request.args.get("keyword", "").strip()
+    budget = request.args.get("budget", "").strip()
+    sort_order = request.args.get("sort", "default").strip()
 
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    if restaurant and restaurant != "全部":
+        data = data[data["餐廳區域"] == restaurant]
+    if shop and shop != "全部":
+        data = data[data["店家"] == shop]
+
+    if keyword:
+        # 關鍵字可搜尋餐點、店家、餐廳區域。
+        mask = (
+            data["餐點"].str.contains(keyword, case=False, na=False, regex=False) |
+            data["店家"].str.contains(keyword, case=False, na=False, regex=False) |
+            data["餐廳區域"].str.contains(keyword, case=False, na=False, regex=False)
+        )
+        data = data[mask]
+
+    if budget:
+        try:
+            limit = int(budget)
+            if limit < 0:
+                raise ValueError
+        except ValueError:
+            return jsonify({"error": "最高預算請輸入 0 以上的整數。"}), 400
+        data = data[data["價格"] <= limit]
+
+    if sort_order == "price_asc":
+        data = data.sort_values(["價格", "餐點"], ascending=[True, True])
+    elif sort_order == "price_desc":
+        data = data.sort_values(["價格", "餐點"], ascending=[False, True])
+
+    return jsonify({"count": int(len(data)), "data": to_records(data)})
+
+
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "ok", "items": int(len(df)), "message": "NYCU Campus Food Finder API 正常"})
+
+
+@app.route("/favicon.ico")
+def favicon():
+    from flask import send_from_directory
+    return send_from_directory(os.path.join(BASE_DIR, "static"), "favicon.ico", mimetype="image/vnd.microsoft.icon")
+
+
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=5000, debug=True)
