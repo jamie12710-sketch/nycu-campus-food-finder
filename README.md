@@ -53,7 +53,8 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 python app.py
 ```
-開啟 `http://127.0.0.1:5000`。健康檢查位於 `http://127.0.0.1:5000/api/health`。
+開啟 `http://127.0.0.1:5000`。
+健康檢查位於 `http://127.0.0.1:5000/api/health`。
 
 啟用 GitHub Pages 展示
 將本資料夾內容推送到 GitHub Repository。
