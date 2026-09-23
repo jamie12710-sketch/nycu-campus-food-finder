@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#071a1d" />
+    <meta
+      name="description"
+      content="Jamie Hung 的 NYCU Campus Food Finder 工程作品：以 Python、Flask、Pandas 與 CSV 建立校園餐飲查詢系統。"
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="food-finder-hero.webp" as="image" type="image/webp" />
+    <title>Jamie Hung｜NYCU Campus Food Finder</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#finder-app">跳到餐點查詢器</a>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="回到頁首">
+        <span class="brand-mark">JH</span>
+        <span class="brand-copy"><strong>Jamie Hung</strong><small>Engineering Portfolio</small></span>
+      </a>
+      <nav aria-label="主要導覽">
+        <a href="#finder">查詢器</a>
+        <a href="#case-study">工程拆解</a>
+        <a href="#role-fit">職務對應</a>
+      </nav>
+      <button class="print-button" type="button" data-print>列印案例</button>
+    </header>
+
+    <main id="top">
+      <section class="product" id="finder" aria-labelledby="product-title">
+        <div class="project-intro">
+          <div class="intro-copy">
+            <p class="eyebrow">CASE 01 · WEB APPLICATION · v3.2.1</p>
+            <h1 id="product-title">午餐吃什麼？<br /><span>先讓資料說話。</span></h1>
+            <p class="lede">
+              為陽明交通大學光復校區打造的餐點查詢工具。將分散的餐廳資料整理成可搜尋、可篩選、可排序的決策介面。
+            </p>
+            <ul class="tech-list" aria-label="使用技術">
+              <li>Python</li><li>Flask</li><li>Pandas</li><li>CSV</li><li>REST API</li>
+            </ul>
+          </div>
+
+          <figure class="project-image">
+            <img
+              src="food-finder-hero.webp"
+              alt="校園午餐餐盤與顯示抽象地圖搜尋介面的手機"
+              width="1536"
+              height="1024"
+            />
+            <figcaption>
+              <span>PROJECT VIEW</span>
+              <strong>從「有什麼」到「我現在能吃什麼」</strong>
+            </figcaption>
+          </figure>
+
+          <dl class="project-stats" aria-label="專案資料摘要">
+            <div><dt>餐廳區域</dt><dd id="stat-areas">4</dd></div>
+            <div><dt>校園店家</dt><dd id="stat-shops">13</dd></div>
+            <div><dt>餐點資料</dt><dd id="stat-items">57</dd></div>
+            <div><dt>價格範圍</dt><dd id="stat-range">$30–229</dd></div>
+          </dl>
+        </div>
+
+        <div class="finder-shell" id="finder-app">
+          <div class="app-titlebar">
+            <div>
+              <span class="app-kicker">LIVE PROJECT</span>
+              <h2>校園餐點查詢器</h2>
+            </div>
+            <span class="data-state" id="data-state"><i></i> 載入資料中</span>
+          </div>
+
+          <form class="finder-controls" id="finder-form" novalidate>
+            <label class="search-field">
+              <span>搜尋餐點或店家</span>
+              <span class="input-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
+                <input id="keyword" type="search" placeholder="例如：牛肉、蛋餅、SUBWAY" autocomplete="off" />
+              </span>
+            </label>
+
+            <div class="control-grid">
+              <label><span>餐廳區域</span><select id="area"><option value="">全部區域</option></select></label>
+              <label><span>店家</span><select id="shop"><option value="">全部店家</option></select></label>
+              <label><span>最高預算</span><span class="money-input"><b>NT$</b><input id="budget" type="number" min="0" step="1" inputmode="numeric" placeholder="不限" /></span></label>
+              <label><span>排序方式</span><select id="sort"><option value="default">資料順序</option><option value="price-asc">價格低到高</option><option value="price-desc">價格高到低</option></select></label>
+            </div>
+
+            <div class="control-actions">
+              <p id="result-count" aria-live="polite">正在準備餐點資料…</p>
+              <button class="clear-button" id="clear" type="button">清除條件</button>
+            </div>
+          </form>
+
+          <div class="results" id="results" aria-busy="true"></div>
+          <div class="empty-state" id="empty" hidden>
+            <strong>沒有符合條件的餐點</strong>
+            <p>試著提高預算，或清除部分篩選條件。</p>
+          </div>
+          <div class="error-state" id="load-error" hidden role="alert">
+            <strong>餐點資料暫時無法讀取</strong>
+            <p>請重新整理頁面後再試一次。</p>
+          </div>
+          <button class="more-button" id="show-more" type="button" hidden>顯示更多餐點</button>
+        </div>
+      </section>
+
+      <section class="case-study" id="case-study" aria-labelledby="case-title">
+        <div class="section-heading">
+          <p class="eyebrow">ENGINEERING CASE STUDY</p>
+          <h2 id="case-title">把缺失資料，變成<br />可依賴的查詢流程。</h2>
+          <p>
+            v3.2.1 的修正核心不是換一層介面，而是建立穩定的資料契約：從檔案讀取、欄位清理到 API 輸出，每一步都能被驗證。
+          </p>
+        </div>
+
+        <ol class="pipeline" aria-label="資料處理流程">
+          <li><span>01</span><div><strong>讀取來源</strong><small>標準檔名與舊檔名自動回退</small></div></li>
+          <li><span>02</span><div><strong>清理資料</strong><small>BOM、空白、價格符號與型別</small></div></li>
+          <li><span>03</span><div><strong>穩定輸出</strong><small>固定 API 欄位，不受額外 index 影響</small></div></li>
+          <li><span>04</span><div><strong>完成決策</strong><small>關鍵字、預算、店家連動與排序</small></div></li>
+        </ol>
+
+        <div class="engineering-grid">
+          <article class="decision-card main-decision">
+            <div class="card-label">DEBUG LOG / 主要修正</div>
+            <h3>先保護資料邊界，再擴充功能。</h3>
+            <div class="fix-list">
+              <div><span>CSV 編碼</span><strong>自動處理 UTF-8 BOM 與不間斷空白</strong></div>
+              <div><span>價格欄位</span><strong>移除 $、千分位後轉為整數</strong></div>
+              <div><span>欄位偏移</span><strong>API 明確指定五個輸出欄位</strong></div>
+              <div><span>舊檔相容</span><strong>支援 restaurant_data(1–3).csv</strong></div>
+            </div>
+          </article>
+
+          <article class="decision-card">
+            <div class="card-label">QUALITY SIGNAL</div>
+            <h3>可觀測，也可測試。</h3>
+            <p>加入 <code>/api/health</code> 回報服務狀態與餐點筆數；無效預算回傳明確的 400 錯誤，避免錯誤輸入靜默失敗。</p>
+            <div class="status-sample"><i></i><span>status: ok</span><strong>57 items</strong></div>
+          </article>
+
+          <article class="decision-card">
+            <div class="card-label">SAFE OUTPUT</div>
+            <h3>顯示之前，先確保安全。</h3>
+            <p>前端對資料內容進行 HTML escape，再插入結果表格；搜尋採純文字比對，不把輸入當作正規表示式。</p>
+            <div class="code-sample"><span>&lt;</span> input <span>&gt;</span> → &amp;lt; input &amp;gt;</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="role-fit" id="role-fit" aria-labelledby="fit-title">
+        <div class="fit-intro">
+          <p class="eyebrow">FROM PROJECT TO ROLE</p>
+          <h2 id="fit-title">一個作品，三種<br />工程職務證據。</h2>
+          <p>專案的價值不只在技術名稱，而在它展現的工作方法：定義問題、處理變因、驗證輸出，再把流程自動化。</p>
+        </div>
+
+        <div class="role-cards">
+          <article>
+            <span>01 / TEST</span>
+            <h3>測試與除錯</h3>
+            <p>以可重現的輸入與 API 回應定位問題，加入健康檢查和錯誤狀態，形成可驗證的 Debug 路徑。</p>
+            <ul><li>Debug</li><li>Failure Analysis</li><li>Validation</li></ul>
+          </article>
+          <article>
+            <span>02 / PROCESS</span>
+            <h3>製程與資料品質</h3>
+            <p>先確認欄位、格式與資料口徑，再進行分析與輸出；對應製程工程重視的穩定性與異常管理。</p>
+            <ul><li>Data Cleaning</li><li>Root Cause</li><li>Process Control</li></ul>
+          </article>
+          <article>
+            <span>03 / AUTOMATION</span>
+            <h3>Python 自動化</h3>
+            <p>讓程式自動讀取、清理、篩選與回傳資料，把重複整理工作轉換成一致、可維護的流程。</p>
+            <ul><li>Python</li><li>Pandas</li><li>REST API</li></ul>
+          </article>
+        </div>
+
+        <div class="closing-note">
+          <div>
+            <span>JAMIE HUNG · ENGINEERING PORTFOLIO</span>
+            <strong>讓問題變得可見、可驗證、可交付。</strong>
+          </div>
+          <button class="closing-action" type="button" data-print>儲存為 PDF</button>
+        </div>
+
+        <footer>
+          <span>Jamie Hung</span>
+          <span>NYCU Campus Food Finder · Python / Flask / Pandas</span>
+          <span>© <span id="year"></span></span>
+        </footer>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
