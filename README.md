@@ -10,7 +10,6 @@
 > **Engineering Focus:** Python · Pandas · Flask · Data Cleaning · Data Validation · Debugging · REST API
 
 ![NYCU Campus Food Finder 主視覺](docs/food-finder-hero.webp)
-
 ---
 
 ## 🎯 Project Objective｜專案目標
