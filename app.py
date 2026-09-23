@@ -8,17 +8,14 @@ REQUIRED = ["餐廳區域", "店家", "餐點", "價格", "營業時間"]
 
 
 def find_csv():
-    # 優先使用標準檔名；若使用者下載成 restaurant_data(3).csv 也能自動找到。
+    # 優先使用標準檔名
     candidates = [
         os.path.join(BASE_DIR, "restaurant_data.csv"),
-        os.path.join(BASE_DIR, "restaurant_data(3).csv"),
-        os.path.join(BASE_DIR, "restaurant_data(2).csv"),
-        os.path.join(BASE_DIR, "restaurant_data(1).csv"),
     ]
     for path in candidates:
         if os.path.isfile(path):
             return path
-    raise FileNotFoundError("找不到 restaurant_data.csv（或 restaurant_data(3).csv）")
+    raise FileNotFoundError("找不到 restaurant_data.csv")
 
 
 def clean_text(series):
