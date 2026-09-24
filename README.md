@@ -1,4 +1,4 @@
-# NYCU Campus Food Finder｜午餐吃什麼?
+# NYCU Campus Food Finder ｜ 午餐吃什麼?
 
 ### Python Data Processing · 
 ### Debugging · 
@@ -116,7 +116,6 @@ Normalized Text Data
 
 ```python
 pd.to_numeric(..., errors="coerce")
-
 ```
 
 轉換為 numeric。
