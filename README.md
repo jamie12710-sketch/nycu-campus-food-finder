@@ -1,7 +1,8 @@
-# NYCU Campus Food Finder
-  午餐吃什麼?
+# NYCU Campus Food Finder｜午餐吃什麼?
 
-### Python Data Processing · Debugging · REST API Engineering Portfolio
+### Python Data Processing · 
+### Debugging · 
+### REST API Engineering Portfolio
 
 以陽明交通大學光復校區學生餐廳資料為題，使用 **Python、Pandas、Flask** 建立餐點資料查詢系統。
 
