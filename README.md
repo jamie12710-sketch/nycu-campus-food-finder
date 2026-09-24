@@ -116,6 +116,7 @@ Normalized Text Data
 
 ```python
 pd.to_numeric(..., errors="coerce")
+
 ```
 
 轉換為 numeric。
