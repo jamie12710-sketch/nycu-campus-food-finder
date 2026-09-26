@@ -2,11 +2,13 @@
 
 ### Python Data Processing · Debugging · REST API Engineering Portfolio
 
-以陽明交通大學光復校區學生餐廳資料為題，使用 **Python、Pandas、Flask、JavaScript** 建立可互動的餐點資料查詢系統。
+以陽明交通大學光復校區學生餐廳資料為題，使用 **Python、Pandas、Flask、JavaScript** 
+建立可互動的餐點資料查詢系統。
 
 此專案重點不只是完成搜尋介面，而是將原始 CSV 資料經過 **Data Cleaning、Data Validation、Exception Handling 與 Debugging**，建立可搜尋、篩選、排序及驗證的資料處理流程。
 
-> **Engineering Focus:** Python · Pandas · Flask · Data Cleaning · Data Validation · Debugging · REST API
+> **Engineering Focus:** Python · Pandas · Flask · Data Cleaning ·
+> Data Validation · Debugging · REST API
 
 ![NYCU Campus Food Finder 主視覺](docs/food-finder-hero.webp)
 
@@ -18,7 +20,8 @@
 
 ### 🌐 Interactive Demo — GitHub Pages
 
-**Interactive Demo:** GitHub Pages 靜態展示版，以 JavaScript 載入 CSV 並執行搜尋、篩選與排序。
+**Interactive Demo:** GitHub Pages 靜態展示版，
+以 JavaScript 載入 CSV 並執行搜尋、篩選與排序。
 
 用途：
 
@@ -28,7 +31,8 @@
 
 ### ⚙️ Backend Implementation — Flask
 
-**Backend Implementation:** Repository 同時包含 Python / Flask / Pandas 版本，實作 REST API、資料驗證、錯誤處理與 Health Check。
+**Backend Implementation:** Repository 同時包含 Python / Flask / Pandas 版本，
+實作 REST API、資料驗證、錯誤處理與 Health Check。
 
 用途：
 
