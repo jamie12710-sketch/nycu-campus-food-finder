@@ -384,7 +384,7 @@ REST API
 
 > 本專案為 **Python / Data Processing / Web API 工程作品**。
 >
-> 本專案重點是展示可轉移至 Test Engineering 的 **Debugging、Data Validation、Error Handling、Test Thinking 與 Automation** 能力，不將此軟體專案描述為半導體製程、ICT/FCT、Yield 或硬體 Failure Analysis 的實務經驗。
+> 本專案重點是展示可轉移至 Test Engineering 的 **Debugging、Data Validation、Error Handling、Test Thinking 與 Automation** 能力，因此不將此專案列為含有:半導體製程、ICT/FCT、Yield 或硬體 Failure Analysis 的實務經驗。
 
 ---
 
